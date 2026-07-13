@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Customize Your Cat — Gatto Pew-Pew</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<style>
+  :root{
+    --ink:#0e0a1a; --panel:#1e1633; --panel2:#271d42;
+    --yarn:#ff6b9d; --yarn2:#ffd166; --claw:#6bffb0; --sky:#7fb3ff;
+    --paper:#f4f0ff; --dim:#9d90c9;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;min-height:100%;background:var(--ink);font-family:'Courier New',monospace;color:var(--paper);overflow-x:hidden;}
+
+  /* drifting gradient + paw-print backdrop */
+  body{
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255,107,157,0.18), transparent 40%),
+      radial-gradient(circle at 80% 85%, rgba(127,179,255,0.16), transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(255,209,102,0.08), transparent 60%),
+      var(--ink);
+    background-size:200% 200%;
+    animation: driftBg 18s ease-in-out infinite;
+  }
+  @keyframes driftBg{
+    0%{background-position:0% 0%, 100% 100%, 50% 50%, 0 0;}
+    50%{background-position:60% 40%, 30% 70%, 50% 50%, 0 0;}
+    100%{background-position:0% 0%, 100% 100%, 50% 50%, 0 0;}
+  }
+  .paw{position:fixed;font-size:22px;opacity:0.12;pointer-events:none;animation:floatUp linear infinite;}
+  @keyframes floatUp{
+    from{transform:translateY(110vh) rotate(0deg);}
+    to{transform:translateY(-10vh) rotate(360deg);}
+  }
+
+  .wrap{position:relative;max-width:460px;margin:0 auto;padding:22px 16px 70px;text-align:center;z-index:1;}
+  h1{font-size:26px;margin:4px 0 4px;letter-spacing:0.5px;
+     background:linear-gradient(90deg,var(--yarn),var(--yarn2),var(--claw),var(--sky),var(--yarn));
+     background-size:300% 100%;
+     -webkit-background-clip:text;background-clip:text;color:transparent;
+     animation:rainbow 6s linear infinite;
+     text-shadow:0 2px 12px rgba(255,107,157,0.25);}
+  @keyframes rainbow{ to{ background-position:300% 0; } }
+  p.sub{color:var(--dim);font-size:12px;margin:0 0 18px;}
+
+  #catStage{width:100%;height:230px;border-radius:16px;margin:0 0 18px;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse at center, rgba(255,255,255,0.06), rgba(0,0,0,0.35));
+    border:2px solid var(--panel2); box-shadow:0 8px 0 #000, 0 0 40px rgba(255,107,157,0.12) inset;}
+  #catStage canvas{display:block;width:100%!important;height:100%!important;}
+  .stageGlow{position:absolute;inset:0;pointer-events:none;box-shadow:0 0 60px 10px var(--glowColor,#ff6b9d) inset;opacity:0.25;transition:box-shadow .3s;}
+  #spinHint{position:absolute;bottom:6px;right:10px;font-size:9px;color:var(--dim);opacity:0.7;}
+
+  .panel{background:rgba(30,22,51,0.85);border:2px solid var(--panel2);border-radius:14px;padding:14px 16px;margin-bottom:14px;box-shadow:0 5px 0 #000;}
+  h2{font-size:12px;color:var(--yarn2);letter-spacing:1.5px;text-align:left;margin:0 0 12px;display:flex;align-items:center;gap:6px;}
+
+  .swatches{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
+  .swatch{width:46px;height:46px;border-radius:50%;border:3px solid rgba(255,255,255,0.08);cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,0.5); position:relative; transition:transform .15s, box-shadow .15s;}
+  .swatch:hover{transform:translateY(-3px) scale(1.08);}
+  .swatch:active{transform:translateY(1px) scale(0.96);}
+  .swatch.selected{border-color:#fff; box-shadow:0 4px 0 rgba(0,0,0,0.5), 0 0 16px 3px currentColor;}
+  .swatch.selected::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:16px;text-shadow:0 1px 3px rgba(0,0,0,0.8);}
+
+  .accessories{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+  .accBtn{background:linear-gradient(180deg, var(--panel), #180f28);border:2px solid var(--panel2);border-radius:12px;color:var(--paper);
+    font-family:inherit;font-size:22px;padding:12px 12px 8px;cursor:pointer;box-shadow:0 4px 0 #000; min-width:66px;
+    transition:transform .15s, border-color .15s;}
+  .accBtn:hover{transform:translateY(-2px);}
+  .accBtn:active{transform:translateY(1px);}
+  .accBtn.selected{border-color:var(--yarn2); box-shadow:0 4px 0 #000, 0 0 14px 1px rgba(255,209,102,0.5);}
+  .accBtn .lbl{display:block;font-size:9px;color:var(--dim);margin-top:5px;}
+
+  .actionsRow{display:flex;gap:10px;}
+  button.bigBtn{flex:1;padding:15px;font-size:14px;font-family:inherit;font-weight:bold;
+    border:none;border-radius:12px;cursor:pointer;letter-spacing:0.5px;}
+  button.saveBtn{background:linear-gradient(180deg,#ff85b3,var(--yarn));color:#2a0f1e;box-shadow:0 5px 0 #b1305a;}
+  button.saveBtn:active{transform:translateY(3px);box-shadow:0 2px 0 #b1305a;}
+  button.randomBtn{background:linear-gradient(180deg,#8fd6ff,var(--sky));color:#0a1a2a;box-shadow:0 5px 0 #2f6fb1;flex:0 0 auto;padding:15px 18px;}
+  button.randomBtn:active{transform:translateY(3px);box-shadow:0 2px 0 #2f6fb1;}
+
+  #savedMsg{margin-top:14px;font-size:12px;color:var(--claw);min-height:16px;font-weight:bold;}
+  a.backLink{display:inline-block;margin-top:20px;color:var(--dim);font-size:11px;text-decoration:none;border-bottom:1px dotted var(--dim);}
+  a.backLink:hover{color:var(--paper);}
+  .note{font-size:10px;color:var(--dim);margin-top:22px;line-height:1.5;}
+
+  .confetti{position:fixed;top:-10px;width:8px;height:8px;pointer-events:none;z-index:99;border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>🐱 CUSTOMIZE YOUR CAT</h1>
+  <p class="sub">Spin it, dress it up, save it — then flip back to your game tab and your cat updates live.</p>
+
+  <div id="catStage">
+    <div class="stageGlow" id="stageGlow"></div>
+    <span id="spinHint">drag to spin</span>
+  </div>
+
+  <div class="panel">
+    <h2>🎨 COLOR</h2>
+    <div class="swatches" id="colorSwatches"></div>
+  </div>
+
+  <div class="panel">
+    <h2>✨ ACCESSORY</h2>
+    <div class="accessories" id="accessoryButtons"></div>
+  </div>
+
+  <div class="actionsRow">
+    <button class="bigBtn randomBtn" id="randomBtn" title="Randomize">🎲</button>
+    <button class="bigBtn saveBtn" id="saveBtn">💾 SAVE &amp; APPLY IN-GAME</button>
+  </div>
+  <p id="savedMsg"></p>
+
+  <a class="backLink" href="../index.html">← Back to Gatto Pew-Pew</a>
+  <p class="note">Free colors only — premium shades stay locked behind the in-game Cat Shop (spend coins earned from kills/survival there instead).</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
+<script>
+/* =========================================================================
+   floating paw-print backdrop
+   ========================================================================= */
+(function(){
+  const paws = ['🐾','🐾','🐾'];
+  for (let i=0;i<14;i++){
+    const p = document.createElement('div');
+    p.className = 'paw';
+    p.textContent = '🐾';
+    p.style.left = (Math.random()*100) + 'vw';
+    p.style.animationDuration = (12 + Math.random()*14) + 's';
+    p.style.animationDelay = (-Math.random()*20) + 's';
+    p.style.fontSize = (14 + Math.random()*20) + 'px';
+    document.body.appendChild(p);
+  }
+})();
+
+var CAT_COLORS = [0xff3b3b,0xff6b9d,0xffd166,0x6bffb0,0x7fb3ff,0xc792ea,0xff9e6b];
+var ACCESSORIES = [
+  {id:'none',  label:'None',    emoji:''},
+  {id:'bow',   label:'Bow',     emoji:'🎀'},
+  {id:'tophat',label:'Top Hat', emoji:'🎩'},
+  {id:'shades',label:'Shades',  emoji:'🕶️'},
+  {id:'crown', label:'Crown',   emoji:'👑'},
+  {id:'flower',label:'Flower',  emoji:'🌸'}
+];
+var STORAGE_KEY = 'catblaster3d_customization';
+
+function hexStr(c){ return '#' + c.toString(16).padStart(6,'0'); }
+
+var current = {color: CAT_COLORS[Math.floor(Math.random()*CAT_COLORS.length)], accessory: 'none'};
+try {
+  var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+  if (saved && typeof saved.color === 'number') current.color = saved.color;
+  if (saved && typeof saved.accessory === 'string') current.accessory = saved.accessory;
+} catch(e){}
+
+/* =========================================================================
+   TINY 3D STAGE — a live rotating cat, built the same way the game builds
+   its cats, so what you see here is exactly what shows up in-match.
+   ========================================================================= */
+var stage = document.getElementById('catStage');
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(40, stage.clientWidth/stage.clientHeight, 0.1, 50);
+camera.position.set(0, 1.6, 4.2);
+camera.lookAt(0, 1, 0);
+var renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setSize(stage.clientWidth, stage.clientHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
+stage.insertBefore(renderer.domElement, document.getElementById('spinHint'));
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x201530, 1.1));
+var key = new THREE.DirectionalLight(0xffffff, 0.9);
+key.position.set(3, 5, 4);
+scene.add(key);
+var rim = new THREE.PointLight(0xff6b9d, 0.8, 12);
+rim.position.set(-3, 2, -2);
+scene.add(rim);
+
+var podium = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.4, 0.25, 24),
+  new THREE.MeshStandardMaterial({color:0x271d42, roughness:0.7}));
+podium.position.y = -0.15;
+scene.add(podium);
+
+var catGroup = null;
+// cosmetic accessories built out of real geometry (not a flat emoji sprite),
+// identical to the builder used in the game itself, so the preview here is
+// exactly what shows up in-match — not just a lookalike.
+function buildAccessory(id){
+  const group = new THREE.Group();
+  switch(id){
+    case 'bow': {
+      const bowMat = new THREE.MeshStandardMaterial({color:0xff2f7a, roughness:0.4});
+      const wingGeo = new THREE.ConeGeometry(0.13, 0.22, 4);
+      const wingL = new THREE.Mesh(wingGeo, bowMat);
+      wingL.position.set(-0.11, 1.63, 0.42); wingL.rotation.z = Math.PI/2; wingL.rotation.y = 0.4;
+      const wingR = new THREE.Mesh(wingGeo, bowMat);
+      wingR.position.set(0.11, 1.63, 0.42); wingR.rotation.z = -Math.PI/2; wingR.rotation.y = -0.4;
+      const knot = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 10), bowMat);
+      knot.position.set(0, 1.63, 0.42);
+      group.add(wingL, wingR, knot);
+      break;
+    }
+    case 'tophat': {
+      const hatMat = new THREE.MeshStandardMaterial({color:0x171018, roughness:0.5});
+      const bandMat = new THREE.MeshStandardMaterial({color:0xffd166, roughness:0.5});
+      const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.04, 20), hatMat);
+      brim.position.set(0, 1.56, 0.55);
+      const top = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.34, 20), hatMat);
+      top.position.set(0, 1.75, 0.55);
+      const band = new THREE.Mesh(new THREE.CylinderGeometry(0.205, 0.205, 0.05, 20), bandMat);
+      band.position.set(0, 1.6, 0.55);
+      group.add(brim, top, band);
+      break;
+    }
+    case 'shades': {
+      const lensMat = new THREE.MeshStandardMaterial({color:0x0a0a0f, roughness:0.15, metalness:0.6});
+      const lensL = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.1, 0.06), lensMat);
+      lensL.position.set(-0.17, 1.19, 0.97);
+      const lensR = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.1, 0.06), lensMat);
+      lensR.position.set(0.17, 1.19, 0.97);
+      const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.03, 0.03), lensMat);
+      bridge.position.set(0, 1.19, 0.97);
+      group.add(lensL, lensR, bridge);
+      break;
+    }
+    case 'crown': {
+      const crownMat = new THREE.MeshStandardMaterial({color:0xffd700, emissive:0x664400, emissiveIntensity:0.3, roughness:0.3, metalness:0.7});
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.29, 0.12, 14), crownMat);
+      base.position.set(0, 1.58, 0.55);
+      group.add(base);
+      const spikeGeo = new THREE.ConeGeometry(0.06, 0.17, 4);
+      const spikeCount = 6;
+      for (let i=0;i<spikeCount;i++){
+        const a = (i/spikeCount) * Math.PI*2;
+        const spike = new THREE.Mesh(spikeGeo, crownMat);
+        spike.position.set(Math.sin(a)*0.24, 1.69, 0.55 + Math.cos(a)*0.24);
+        group.add(spike);
+      }
+      break;
+    }
+    case 'flower': {
+      const petalMat = new THREE.MeshStandardMaterial({color:0xff8fc7, roughness:0.5});
+      const centerMat = new THREE.MeshStandardMaterial({color:0xffd166, roughness:0.5});
+      const cx = -0.33, cy = 1.42, cz = 0.62;
+      const petalCount = 5;
+      for (let i=0;i<petalCount;i++){
+        const a = (i/petalCount) * Math.PI*2;
+        const petal = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), petalMat);
+        petal.position.set(cx + Math.sin(a)*0.09, cy + Math.cos(a)*0.09, cz);
+        petal.scale.set(1, 1, 0.55);
+        group.add(petal);
+      }
+      const center = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 10), centerMat);
+      center.position.set(cx, cy, cz);
+      group.add(center);
+      break;
+    }
+  }
+  return group;
+}
+function buildCat(color, accessoryId){
+  const g = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({color, roughness:0.5});
+  const darkMat = new THREE.MeshStandardMaterial({color:0x1a0f1a, roughness:0.4});
+
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 20), mat);
+  body.scale.set(1, 0.85, 1.35);
+  body.position.y = 0.6;
+  g.add(body);
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), mat);
+  head.position.set(0, 1.15, 0.55);
+  g.add(head);
+
+  const earGeo = new THREE.ConeGeometry(0.16, 0.32, 10);
+  const earL = new THREE.Mesh(earGeo, mat); earL.position.set(-0.22,1.5,0.55); earL.rotation.z = 0.3;
+  const earR = new THREE.Mesh(earGeo, mat); earR.position.set(0.22,1.5,0.55); earR.rotation.z = -0.3;
+  g.add(earL, earR);
+
+  const eyeGeo = new THREE.SphereGeometry(0.06, 10, 10);
+  const eyeL = new THREE.Mesh(eyeGeo, darkMat); eyeL.position.set(-0.16,1.18,0.92);
+  const eyeR = new THREE.Mesh(eyeGeo, darkMat); eyeR.position.set(0.16,1.18,0.92);
+  g.add(eyeL, eyeR);
+
+  const noseMat = new THREE.MeshStandardMaterial({color:0xff9ec4});
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.05,10,10), noseMat);
+  nose.position.set(0,1.05,0.97);
+  g.add(nose);
+
+  const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.13,1.1,10), mat);
+  tail.position.set(0,0.9,-0.85);
+  tail.rotation.x = -0.9;
+  g.add(tail);
+
+  const legGeo = new THREE.CylinderGeometry(0.11,0.11,0.5,10);
+  [[-0.28,0.25,0.4],[0.28,0.25,0.4],[-0.28,0.25,-0.35],[0.28,0.25,-0.35]].forEach(p=>{
+    const l = new THREE.Mesh(legGeo, mat); l.position.set(...p); g.add(l);
+  });
+
+  const accessoryGroup = buildAccessory(accessoryId);
+  if (accessoryGroup.children.length) g.add(accessoryGroup);
+  return g;
+}
+function rebuildStageCat(){
+  if (catGroup){ scene.remove(catGroup); }
+  catGroup = buildCat(current.color, current.accessory);
+  scene.add(catGroup);
+  document.getElementById('stageGlow').style.setProperty('--glowColor', hexStr(current.color));
+}
+
+// drag-to-spin + gentle auto-spin
+var autoSpin = true, dragging = false, lastX = 0, spinY = 0.5;
+stage.addEventListener('pointerdown', e=>{ dragging = true; autoSpin = false; lastX = e.clientX; stage.setPointerCapture(e.pointerId); });
+stage.addEventListener('pointermove', e=>{ if (!dragging) return; spinY += (e.clientX - lastX) * 0.01; lastX = e.clientX; });
+stage.addEventListener('pointerup', ()=>{ dragging = false; });
+stage.addEventListener('pointercancel', ()=>{ dragging = false; });
+
+(function loop(){
+  requestAnimationFrame(loop);
+  if (autoSpin) spinY += 0.012;
+  if (catGroup) catGroup.rotation.y = spinY;
+  renderer.render(scene, camera);
+})();
+addEventListener('resize', ()=>{
+  camera.aspect = stage.clientWidth / stage.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(stage.clientWidth, stage.clientHeight);
+});
+
+/* =========================================================================
+   simple click / save chime, no audio files needed
+   ========================================================================= */
+var actx = null;
+function tone(freq, dur, type, vol, glideTo){
+  try{
+    if (!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = actx.createOscillator(), gain = actx.createGain();
+    osc.type = type||'sine'; osc.frequency.value = freq;
+    gain.gain.value = vol||0.15;
+    osc.connect(gain); gain.connect(actx.destination);
+    osc.start();
+    if (glideTo) osc.frequency.exponentialRampToValueAtTime(glideTo, actx.currentTime + dur);
+    gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+    osc.stop(actx.currentTime + dur + 0.02);
+  }catch(e){}
+}
+function clickSound(){ tone(600, 0.06, 'square', 0.08, 900); }
+function saveSound(){ tone(660,0.1,'triangle',0.15,990); setTimeout(()=>tone(990,0.14,'triangle',0.14,1320),90); setTimeout(()=>tone(1320,0.18,'triangle',0.13,1760),180); }
+
+/* =========================================================================
+   confetti burst on save
+   ========================================================================= */
+function burstConfetti(){
+  const colors = ['#ff6b9d','#ffd166','#6bffb0','#7fb3ff','#c792ea'];
+  for (let i=0;i<36;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = (45 + Math.random()*10) + 'vw';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+    document.body.appendChild(c);
+    const dx = (Math.random()-0.5) * 500;
+    const dur = 900 + Math.random()*700;
+    c.animate([
+      {transform: c.style.transform + ' translate(0,0)', opacity:1},
+      {transform: `translate(${dx}px, ${window.innerHeight}px) rotate(${Math.random()*720}deg)`, opacity:0}
+    ], {duration:dur, easing:'cubic-bezier(.2,.6,.4,1)'});
+    setTimeout(()=>c.remove(), dur+50);
+  }
+}
+
+/* =========================================================================
+   swatch + accessory UI
+   ========================================================================= */
+function renderSwatches(){
+  var wrap = document.getElementById('colorSwatches');
+  wrap.innerHTML = '';
+  CAT_COLORS.forEach(function(c){
+    var b = document.createElement('button');
+    b.className = 'swatch' + (c === current.color ? ' selected' : '');
+    b.style.background = hexStr(c);
+    b.style.color = hexStr(c);
+    b.onclick = function(){
+      current.color = c;
+      renderSwatches();
+      rebuildStageCat();
+      clickSound();
+    };
+    wrap.appendChild(b);
+  });
+}
+function renderAccessories(){
+  var wrap = document.getElementById('accessoryButtons');
+  wrap.innerHTML = '';
+  ACCESSORIES.forEach(function(a){
+    var b = document.createElement('button');
+    b.className = 'accBtn' + (a.id === current.accessory ? ' selected' : '');
+    b.innerHTML = (a.emoji || '🚫') + '<span class="lbl">' + a.label + '</span>';
+    b.onclick = function(){
+      current.accessory = a.id;
+      renderAccessories();
+      rebuildStageCat();
+      clickSound();
+    };
+    wrap.appendChild(b);
+  });
+}
+
+document.getElementById('randomBtn').onclick = function(){
+  current.color = CAT_COLORS[Math.floor(Math.random()*CAT_COLORS.length)];
+  current.accessory = ACCESSORIES[Math.floor(Math.random()*ACCESSORIES.length)].id;
+  renderSwatches();
+  renderAccessories();
+  rebuildStageCat();
+  spinY += Math.PI; // flourish spin on randomize
+  clickSound();
+};
+
+document.getElementById('saveBtn').onclick = function(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+  var msg = document.getElementById('savedMsg');
+  msg.textContent = '✅ Saved! Switch back to your game tab to see it.';
+  saveSound();
+  burstConfetti();
+  setTimeout(function(){ msg.textContent = ''; }, 4000);
+};
+
+renderSwatches();
+renderAccessories();
+rebuildStageCat();
+</script>
+</body>
+</html>
